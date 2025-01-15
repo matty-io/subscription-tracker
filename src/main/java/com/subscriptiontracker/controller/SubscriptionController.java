@@ -10,23 +10,21 @@ import com.subscriptiontracker.service.SubscriptionFolderService;
 import com.subscriptiontracker.service.SubscriptionService;
 import com.subscriptiontracker.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/subscription")
+@RequestMapping("/api/subscriptions")
 public class SubscriptionController {
     private final SubscriptionService service;
     private final SubscriptionFolderService folderService;
 
-    @GetMapping("/{userId}")
-    public List<SubscriptionFolder> getSubscriptions(@PathVariable Long userId) {
-        return folderService.getAllSubscriptionFolders(userId);
+    @PostMapping
+    public ResponseEntity<Subscription> create(@RequestBody Subscription subscription) {
+        return ResponseEntity.ok(service.createSubscription(subscription));
     }
 }
