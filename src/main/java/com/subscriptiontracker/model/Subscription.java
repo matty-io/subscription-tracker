@@ -30,4 +30,7 @@ public class Subscription {
     @JsonIgnore
     private SubscriptionFolder folder;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

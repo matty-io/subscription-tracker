@@ -27,4 +27,22 @@ public class SubscriptionController {
     public ResponseEntity<Subscription> create(@RequestBody Subscription subscription) {
         return ResponseEntity.ok(service.createSubscription(subscription));
     }
+
+    @PutMapping
+    public ResponseEntity<Subscription> updateSubscription(@RequestBody Subscription subscription) {
+        return ResponseEntity.ok(service.updateSubscription(subscription));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSubscription(@PathVariable Long id) {
+        service.deleteSubscription(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Subscription>> getAllSubscriptions() {
+        return ResponseEntity.ok(service.getAllSubscriptions());
+    }
+
+
 }

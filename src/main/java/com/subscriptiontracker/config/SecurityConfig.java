@@ -45,6 +45,8 @@ public class SecurityConfig {
                         customizer -> {
                             customizer
                                     .requestMatchers(antMatcher(HttpMethod.POST, "/api/auth/login")).permitAll()
+                                    .requestMatchers(antMatcher(HttpMethod.POST, "/api/users")).permitAll()
+                                    .requestMatchers(antMatcher(HttpMethod.GET, "/api/auth/me")).permitAll()
                                     .anyRequest().authenticated();
                         }
                 ).cors(customizer -> {

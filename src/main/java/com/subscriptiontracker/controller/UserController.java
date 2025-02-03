@@ -24,8 +24,8 @@ public class UserController {
         return ResponseEntity.ok(userService.create(request));
     }
 
-    @GetMapping("/{userId}/subscription-folders")
-    public ResponseEntity<List<SubscriptionFolder>> getSubscriptionFolders(@PathVariable Long userId) {
-        return ResponseEntity.ok(folderService.getAllSubscriptionFolders(userId));
-    }
+//    @GetMapping("/{userId}/subscription-folders")
+//    public ResponseEntity<List<SubscriptionFolder>> getSubscriptionFolders(@PathVariable Long userId) {
+//        return ResponseEntity.ok(folderService.getAllSubscriptionFolders(userId));
+//    }
 }
