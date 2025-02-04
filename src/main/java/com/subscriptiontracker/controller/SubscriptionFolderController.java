@@ -1,5 +1,6 @@
 package com.subscriptiontracker.controller;
 
+import com.subscriptiontracker.DTO.SubscriptionFolderDTO;
 import com.subscriptiontracker.model.SubscriptionFolder;
 import com.subscriptiontracker.service.SubscriptionFolderService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class SubscriptionFolderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SubscriptionFolder>> getAllFolders() {
+    public ResponseEntity<List<SubscriptionFolderDTO>> getAllFolders() {
         return ResponseEntity.ok(service.getAllSubscriptionFolders());
     }
 }

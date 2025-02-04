@@ -1,5 +1,6 @@
 package com.subscriptiontracker.controller;
 
+import com.subscriptiontracker.DTO.SubscriptionRequest;
 import com.subscriptiontracker.model.Subscription;
 import com.subscriptiontracker.service.SubscriptionFolderService;
 import com.subscriptiontracker.service.SubscriptionService;
@@ -22,8 +23,8 @@ public class SubscriptionController {
     }
 
     @PutMapping
-    public ResponseEntity<Subscription> updateSubscription(@RequestBody Subscription subscription) {
-        return ResponseEntity.ok(service.updateSubscription(subscription));
+    public ResponseEntity<Subscription> updateSubscription(@RequestBody SubscriptionRequest request) {
+        return ResponseEntity.ok(service.updateSubscription(request));
     }
 
     @DeleteMapping("/{id}")
