@@ -18,6 +18,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -34,6 +36,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final ApplicationProperties applicationProperties;
+    private final Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
     @Bean
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
@@ -44,6 +47,7 @@ public class SecurityConfig {
                         customizer -> {
                             customizer
                                     .requestMatchers(antMatcher(HttpMethod.POST, "/api/auth/login")).permitAll()
+                                    .requestMatchers(antMatcher(HttpMethod.POST, "/api/auth/login/**")).permitAll()
                                     .requestMatchers(antMatcher(HttpMethod.POST, "/api/users")).permitAll()
                                     .requestMatchers(antMatcher(HttpMethod.GET, "/api/auth/me")).permitAll()
                                     .requestMatchers(antMatcher(HttpMethod.GET, "/api/users/verify-email")).permitAll()
@@ -52,12 +56,15 @@ public class SecurityConfig {
                 ).cors(customizer -> {
                     customizer.configurationSource(corsConfigurationSource());
                 })
-                .authenticationManager(authenticationManager());
+                .userDetailsService(userDetailsService)
+                //.authenticationManager(authenticationManager())
+                .oauth2Login(customizer -> {
+                    customizer.successHandler(oauth2LoginSuccessHandler);
+                });
 
         http.addFilterBefore(new UsernamePasswordAuthenticationFilter(), LogoutFilter.class);
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager() {
