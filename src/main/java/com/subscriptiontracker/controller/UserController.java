@@ -2,30 +2,32 @@ package com.subscriptiontracker.controller;
 
 import com.subscriptiontracker.DTO.CreateUserRequest;
 import com.subscriptiontracker.DTO.UserResponse;
-import com.subscriptiontracker.model.SubscriptionFolder;
-import com.subscriptiontracker.service.SubscriptionFolderService;
+import com.subscriptiontracker.config.ApplicationProperties;
 import com.subscriptiontracker.service.UserService;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/users")
 public class UserController {
     private final UserService userService;
-    private final SubscriptionFolderService folderService;
+    private final ApplicationProperties applicationProperties;
 
     @PostMapping
     public ResponseEntity<UserResponse> create(@Valid @RequestBody CreateUserRequest request) {
         return ResponseEntity.ok(userService.create(request));
     }
 
-//    @GetMapping("/{userId}/subscription-folders")
-//    public ResponseEntity<List<SubscriptionFolder>> getSubscriptionFolders(@PathVariable Long userId) {
-//        return ResponseEntity.ok(folderService.getAllSubscriptionFolders(userId));
-//    }
+    /**
+     * Verify the email of the user, redirect to the login page.
+     */
+    @GetMapping("/verify-email")
+    public RedirectView verifyEmail(@RequestParam String token) {
+        userService.verifyEmail(token);
+        return new RedirectView(applicationProperties.getLoginPageUrl());
+    }
 }

@@ -1,10 +1,7 @@
 package com.subscriptiontracker.model;
 
 import com.subscriptiontracker.DTO.CreateUserRequest;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,6 +24,12 @@ public class User implements UserDetails {
     private String email;
     private String password;
 
+    @OneToOne(mappedBy = "user")
+    private VerificationCode verificationCode;
+
+    private boolean verified = false;
+
+
     public User(CreateUserRequest request) {
         this.firstName = request.getFirstName();
         this.lastName = request.getLastName();
@@ -47,5 +50,23 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+
+    // If you want to not allow the user to login before verifying their email, you can change this to
+    // return verified;
+    @Override
+    public boolean isEnabled() {
+        return verified;
     }
 }
