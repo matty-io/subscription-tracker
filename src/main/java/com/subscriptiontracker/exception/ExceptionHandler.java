@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -85,6 +86,14 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<HttpErrorResponse> handleException(AccessDeniedException e) {
         log.info("Handling AccessDeniedException: {}", e.getMessage());
         var response = HttpErrorResponse.of("Access Denied: " + e.getMessage(), 403, null, null);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    // Add this handler method for DisabledException
+    @org.springframework.web.bind.annotation.ExceptionHandler(DisabledException.class)
+    public ResponseEntity<HttpErrorResponse> handleException(DisabledException e) {
+        log.info("Handling DisabledException: {}", e.getMessage());
+        var response = HttpErrorResponse.of("Account is disabled or not activated. Please contact support.", 403, null, null);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }
