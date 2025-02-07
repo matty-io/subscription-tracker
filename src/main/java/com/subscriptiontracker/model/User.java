@@ -44,19 +44,18 @@ public class User implements UserDetails {
     }
 
     public User (OAuth2User oAuth2User) {
-        User user = new User();
-        user.email = oAuth2User.getAttribute("email");
+        this.email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
         if (name != null) {
             List<String> names = List.of(name.split(" "));
             if (names.size() > 1) {
-                user.firstName = names.get(0);
-                user.lastName = names.get(1);
+                this.firstName = names.get(0);
+                this.lastName = names.get(1);
             } else {
-                user.firstName = names.getFirst();
+                this.firstName = names.getFirst();
             }
         }
-        user.verified = true;
+        this.verified = true;
     }
 
     public void addConnectedAccount(UserConnectedAccount connectedAccount) {
