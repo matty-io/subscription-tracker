@@ -1,7 +1,8 @@
 package com.subscriptiontracker.controller;
 
 import com.subscriptiontracker.DTO.CreateSubscriptionRequest;
-import com.subscriptiontracker.DTO.SubscriptionRequest;
+import com.subscriptiontracker.DTO.SubscriptionResponse;
+import com.subscriptiontracker.DTO.UpdateSubscriptionRequest;
 import com.subscriptiontracker.model.Subscription;
 import com.subscriptiontracker.service.SubscriptionFolderService;
 import com.subscriptiontracker.service.SubscriptionService;
@@ -19,12 +20,12 @@ public class SubscriptionController {
     private final SubscriptionFolderService folderService;
 
     @PostMapping
-    public ResponseEntity<Subscription> create(@RequestBody CreateSubscriptionRequest request) {
+    public ResponseEntity<SubscriptionResponse> create(@RequestBody CreateSubscriptionRequest request) {
         return ResponseEntity.ok(service.createSubscription(request));
     }
 
     @PutMapping
-    public ResponseEntity<Subscription> updateSubscription(@RequestBody SubscriptionRequest request) {
+    public ResponseEntity<SubscriptionResponse> updateSubscription(@RequestBody UpdateSubscriptionRequest request) {
         return ResponseEntity.ok(service.updateSubscription(request));
     }
 
@@ -38,6 +39,4 @@ public class SubscriptionController {
     public ResponseEntity<List<Subscription>> getAllSubscriptions() {
         return ResponseEntity.ok(service.getAllSubscriptions());
     }
-
-
 }

@@ -16,6 +16,7 @@ import java.util.Date;
 public class SubscriptionResponse {
     private Long id;
     private String CompanyName;
+    private Long companyId;
     private String description;
     private Double price;
     private String currency;

@@ -1,11 +1,11 @@
 package com.subscriptiontracker.service;
 
 import com.subscriptiontracker.DTO.CreateSubscriptionRequest;
-import com.subscriptiontracker.DTO.SubscriptionRequest;
+import com.subscriptiontracker.DTO.SubscriptionResponse;
+import com.subscriptiontracker.DTO.UpdateSubscriptionRequest;
 import com.subscriptiontracker.exception.ResourceNotFoundException;
 import com.subscriptiontracker.mappers.SubscriptionMapper;
 import com.subscriptiontracker.model.Subscription;
-import com.subscriptiontracker.model.SubscriptionFolder;
 import com.subscriptiontracker.model.User;
 import com.subscriptiontracker.repository.SubscriptionFolderRepository;
 import com.subscriptiontracker.repository.SubscriptionRepository;
@@ -22,27 +22,17 @@ public class SubscriptionService {
     private final SubscriptionRepository repository;
     private final SubscriptionFolderRepository folderRepository;
     private final SubscriptionMapper subscriptionMapper;
-    public Subscription createSubscription(CreateSubscriptionRequest request) {
+    public SubscriptionResponse createSubscription(CreateSubscriptionRequest request) {
         Subscription subscription = subscriptionMapper.toEntity(request);
-        return repository.save(subscription);
+        Subscription savedSubscription = repository.save(subscription);
+        return subscriptionMapper.convertToSubscriptionResponse(savedSubscription);
     }
 
-    public Subscription updateSubscription(SubscriptionRequest request) {
+    public SubscriptionResponse updateSubscription(UpdateSubscriptionRequest request) {
         Subscription subscription = repository.findById(request.getId()).orElse(new Subscription());
-        User user = SecurityUtil.getAuthenticatedUser();
-        subscription.setUser(user);
-        //subscription.setName(request.getName());
-        subscription.setPrice(request.getPrice());
-        subscription.setBillingCycle(request.getBillingCycle());
-        subscription.setNextBillingDate(request.getNextBillingDate());
-
-        if (request.getFolderId() != null) {
-            SubscriptionFolder folder = folderRepository.findById(request.getFolderId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
-            subscription.setFolder(folder);
-        }
-
-        return repository.save(subscription);
+        subscriptionMapper.toEntity(request);
+        Subscription savedSubscription = repository.save(subscription);
+        return subscriptionMapper.convertToSubscriptionResponse(savedSubscription);
     }
 
     public void deleteSubscription(Long id)  {

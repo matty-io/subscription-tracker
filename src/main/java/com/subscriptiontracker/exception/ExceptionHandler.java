@@ -1,14 +1,14 @@
 package com.subscriptiontracker.exception;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -96,4 +96,37 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         var response = HttpErrorResponse.of("Account is disabled or not activated. Please contact support.", 403, null, null);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<HttpErrorResponse> handleException(IllegalArgumentException e) {
+        log.info("Handling IllegalArgumentException: {}", e.getMessage());
+        var response = HttpErrorResponse.of("Invalid input: " + e.getMessage(), 400, null, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        log.warn("Handling HttpMessageNotReadableException: {}", ex.getMessage());
+
+        String errorMessage = "Invalid request format";
+        List<String> generalErrors = new ArrayList<>();
+
+        // Check if the exception is caused by an invalid enum value
+        if (ex.getCause() instanceof InvalidFormatException invalidFormatException) {
+            Class<?> targetType = invalidFormatException.getTargetType();
+            if (targetType != null && targetType.isEnum()) {
+                Object[] validValues = targetType.getEnumConstants();
+                errorMessage = "Invalid value for " + targetType.getSimpleName() +
+                        ". Allowed values: " + Arrays.toString(validValues);
+            }
+        }
+
+        generalErrors.add(errorMessage);
+        var response = HttpErrorResponse.of("Bad Request", 400, null, generalErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 }
