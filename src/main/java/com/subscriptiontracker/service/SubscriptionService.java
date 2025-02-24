@@ -1,7 +1,9 @@
 package com.subscriptiontracker.service;
 
+import com.subscriptiontracker.DTO.CreateSubscriptionRequest;
 import com.subscriptiontracker.DTO.SubscriptionRequest;
 import com.subscriptiontracker.exception.ResourceNotFoundException;
+import com.subscriptiontracker.mappers.SubscriptionMapper;
 import com.subscriptiontracker.model.Subscription;
 import com.subscriptiontracker.model.SubscriptionFolder;
 import com.subscriptiontracker.model.User;
@@ -19,10 +21,9 @@ import java.util.List;
 public class SubscriptionService {
     private final SubscriptionRepository repository;
     private final SubscriptionFolderRepository folderRepository;
-
-    public Subscription createSubscription(Subscription subscription) {
-        User user = SecurityUtil.getAuthenticatedUser();
-        subscription.setUser(user);
+    private final SubscriptionMapper subscriptionMapper;
+    public Subscription createSubscription(CreateSubscriptionRequest request) {
+        Subscription subscription = subscriptionMapper.toEntity(request);
         return repository.save(subscription);
     }
 
@@ -30,7 +31,7 @@ public class SubscriptionService {
         Subscription subscription = repository.findById(request.getId()).orElse(new Subscription());
         User user = SecurityUtil.getAuthenticatedUser();
         subscription.setUser(user);
-        subscription.setName(request.getName());
+        //subscription.setName(request.getName());
         subscription.setPrice(request.getPrice());
         subscription.setBillingCycle(request.getBillingCycle());
         subscription.setNextBillingDate(request.getNextBillingDate());

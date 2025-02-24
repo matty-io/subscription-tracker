@@ -1,5 +1,6 @@
 package com.subscriptiontracker.controller;
 
+import com.subscriptiontracker.DTO.CreateSubscriptionRequest;
 import com.subscriptiontracker.DTO.SubscriptionRequest;
 import com.subscriptiontracker.model.Subscription;
 import com.subscriptiontracker.service.SubscriptionFolderService;
@@ -18,8 +19,8 @@ public class SubscriptionController {
     private final SubscriptionFolderService folderService;
 
     @PostMapping
-    public ResponseEntity<Subscription> create(@RequestBody Subscription subscription) {
-        return ResponseEntity.ok(service.createSubscription(subscription));
+    public ResponseEntity<Subscription> create(@RequestBody CreateSubscriptionRequest request) {
+        return ResponseEntity.ok(service.createSubscription(request));
     }
 
     @PutMapping

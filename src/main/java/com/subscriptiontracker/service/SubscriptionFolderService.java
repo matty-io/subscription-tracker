@@ -1,7 +1,7 @@
 package com.subscriptiontracker.service;
 
-import com.subscriptiontracker.DTO.SubscriptionDTO;
-import com.subscriptiontracker.DTO.SubscriptionFolderDTO;
+import com.subscriptiontracker.DTO.SubscriptionFolderResponse;
+import com.subscriptiontracker.mappers.SubscriptionMapper;
 import com.subscriptiontracker.model.Subscription;
 import com.subscriptiontracker.model.SubscriptionFolder;
 import com.subscriptiontracker.model.User;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class SubscriptionFolderService {
     private final SubscriptionFolderRepository repository;
     private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionMapper subscriptionMapper;
 
     public SubscriptionFolder createFolder(SubscriptionFolder folder) {
         User user = SecurityUtil.getAuthenticatedUser();
@@ -32,39 +33,20 @@ public class SubscriptionFolderService {
         return repository.findById(id);
     }
 
-    public List<SubscriptionFolderDTO> getAllSubscriptionFolders() {
+    public List<SubscriptionFolderResponse> getAllSubscriptionFolders() {
         User user = SecurityUtil.getAuthenticatedUser();
         List<SubscriptionFolder> folders = repository.findAllByUserId(user.getId()).orElse(new ArrayList<>());
 
-        List<SubscriptionFolderDTO> folderDTOs = folders.stream().map(this::convertToDTO).collect(Collectors.toList());
+        List<SubscriptionFolderResponse> folderDTOs = folders.stream().map(subscriptionMapper::convertToFolderResponse).collect(Collectors.toList());
 
         List<Subscription> subscriptions = subscriptionRepository.findByUserId(user.getId());
-        SubscriptionFolderDTO allFolderDTO = new SubscriptionFolderDTO(
+        SubscriptionFolderResponse allFolderDTO = new SubscriptionFolderResponse(
                 -1L,
                 "All",
-                subscriptions.stream().map(this::convertToSubscriptionDTO).collect(Collectors.toList())
+                subscriptions.stream().map(subscriptionMapper::convertToSubscriptionResponse).collect(Collectors.toList())
         );
 
         folderDTOs.addFirst(allFolderDTO);
         return folderDTOs;
-    }
-
-    private SubscriptionFolderDTO convertToDTO(SubscriptionFolder folder) {
-        List<SubscriptionDTO> subscriptionDTOs = folder.getSubscriptions() != null
-                ? folder.getSubscriptions().stream().map(this::convertToSubscriptionDTO).collect(Collectors.toList())
-                : new ArrayList<>();
-
-        return new SubscriptionFolderDTO(folder.getId(), folder.getName(), subscriptionDTOs);
-    }
-
-    private SubscriptionDTO convertToSubscriptionDTO(Subscription subscription) {
-        return new SubscriptionDTO(
-                subscription.getId(),
-                subscription.getName(),
-                subscription.getPrice(),
-                subscription.getBillingCycle(),
-                subscription.getNextBillingDate(),
-                subscription.getFolder() != null ? subscription.getFolder().getId() : null
-        );
     }
 }

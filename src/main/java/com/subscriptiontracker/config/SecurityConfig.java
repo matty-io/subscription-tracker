@@ -51,6 +51,7 @@ public class SecurityConfig {
                                     .requestMatchers(antMatcher(HttpMethod.POST, "/api/users")).permitAll()
                                     .requestMatchers(antMatcher(HttpMethod.GET, "/api/auth/me")).permitAll()
                                     .requestMatchers(antMatcher(HttpMethod.GET, "/api/users/verify-email")).permitAll()
+                                    .requestMatchers(antMatcher(HttpMethod.GET, "/api/companies/search")).permitAll()
                                     .anyRequest().authenticated();
                         }
                 ).cors(customizer -> {
