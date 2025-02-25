@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.util.Currency;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -47,4 +48,7 @@ public class Subscription {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Alert> alerts;
 }

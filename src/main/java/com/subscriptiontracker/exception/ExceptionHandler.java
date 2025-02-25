@@ -12,6 +12,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -70,7 +71,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(Exception.class)
     public ResponseEntity<HttpErrorResponse> handleException(Exception e) {
         log.error("Unhandled exception", e);
-        var response = HttpErrorResponse.of("Unexpected error", 500);
+        var response = HttpErrorResponse.of("Unexpected error : " + e.getMessage(), 500);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -127,6 +128,15 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         var response = HttpErrorResponse.of("Bad Request", 400, null, generalErrors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<HttpErrorResponse> handleException(InternalAuthenticationServiceException e) {
+        log.error("Authentication service error: {}", e.getMessage());
+
+        var response = HttpErrorResponse.of("Authentication service error. Please try again later. " + e.getMessage(), 500, null, null);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

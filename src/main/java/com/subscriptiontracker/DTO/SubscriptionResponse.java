@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,4 +28,5 @@ public class SubscriptionResponse {
     private Date contractExpiry;
     private Long folderId;
     private Long userId;
+    private List<AlertRequest> alerts;
 }

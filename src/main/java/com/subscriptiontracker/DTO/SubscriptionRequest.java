@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,4 +23,5 @@ public abstract class SubscriptionRequest {
     private Date contractExpiry;
     private Long folderId;
     private Long userId;
+    private List<AlertRequest> alerts;
 }
