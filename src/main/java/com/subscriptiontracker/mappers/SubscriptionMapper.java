@@ -2,18 +2,12 @@ package com.subscriptiontracker.mappers;
 
 import com.subscriptiontracker.DTO.*;
 import com.subscriptiontracker.model.*;
-import com.subscriptiontracker.repository.CompanyRepository;
-import com.subscriptiontracker.repository.SubscriptionFolderRepository;
-import com.subscriptiontracker.repository.SubscriptionRepository;
-import com.subscriptiontracker.repository.UserRepository;
+import com.subscriptiontracker.repository.*;
 import com.subscriptiontracker.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Currency;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -24,7 +18,7 @@ public class SubscriptionMapper {
 
     private final SubscriptionFolderRepository folderRepository;
 
-    private final UserRepository userRepository;
+    private final ContactRepository contactRepository;
 
     private final SubscriptionRepository subscriptionRepository;
 
@@ -39,38 +33,53 @@ public class SubscriptionMapper {
         subscription.setBillingCycle(request.getBillingCycle());
         subscription.setNextBillingDate(request.getNextBillingDate());
         subscription.setContractExpiry(request.getContractExpiry());
+        subscription.setCurrency(getCurrency(request.getCurrency()));
+        subscription.setFolder(getFolder(request.getFolderId()));
 
-        // Convert currency string to Currency object
-        if (request.getCurrency() != null) {
-            subscription.setCurrency(Currency.getInstance(request.getCurrency().toUpperCase()));
-        } else {
-            subscription.setCurrency(Currency.getInstance("USD")); // Default currency
-        }
+        updateAlerts(subscription, request.getAlerts());
 
-        if (request.getFolderId() != null) {
-            folderRepository.findById(request.getFolderId()).ifPresent(subscription::setFolder);
-        }
-
-        // Remove old alerts and add new ones
-        subscription.getAlerts().forEach(alert -> alert.setSubscription(null));
-        subscription.getAlerts().clear();
-        Optional.ofNullable(request.getAlerts())
-                .ifPresent(alertRequests -> {
-                    List<Alert> alerts = alertRequests.stream().map(alertRequest -> {
-                        Alert alert = new Alert();
-                        alert.setSubscription(subscription);
-                        alert.setEmail(alertRequest.getEmail());
-                        alert.setDaysBeforeBilling(alertRequest.getDaysBeforeBilling());
-                        return alert;
-                    }).toList();
-                    subscription.getAlerts().addAll(alerts);
-                });
-
-        User user = SecurityUtil.getAuthenticatedUser();
-        subscription.setUser(user);
+        subscription.setUser(SecurityUtil.getAuthenticatedUser());
         return subscription;
     }
 
+    /**
+     * Converts currency string to Currency object, defaults to USD if null.
+     */
+    private Currency getCurrency(String currencyCode) {
+        return Currency.getInstance(Optional.ofNullable(currencyCode)
+                .map(String::toUpperCase)
+                .orElse("USD"));
+    }
+
+    /**
+     * Retrieves a folder if provided.
+     */
+    private SubscriptionFolder getFolder(Long folderId) {
+        return Optional.ofNullable(folderId)
+                .flatMap(folderRepository::findById)
+                .orElse(null);
+    }
+
+    /**
+     * Updates alerts based on the request.
+     */
+    private void updateAlerts(Subscription subscription, List<AlertRequest> alertRequests) {
+        Map<Long, Alert> existingAlerts = subscription.getAlerts().stream()
+                .collect(Collectors.toMap(Alert::getId, alert -> alert));
+
+        // Remove alerts not present in request
+        subscription.getAlerts().removeIf(alert ->
+                alertRequests.stream().noneMatch(a -> a.getId() != null && a.getId().equals(alert.getId())));
+
+        alertRequests.forEach(alertRequest -> {
+            Alert alert = existingAlerts.getOrDefault(alertRequest.getId(), new Alert());
+            alert.setSubscription(subscription);
+            alert.setContact(getContact(alertRequest.getContactId()));
+            alert.setConfiguration(createAlertConfiguration(alertRequest));
+
+            subscription.getAlerts().add(alert); // Ensures alert is added without redundant checks
+        });
+    }
     private Company getOrCreateCompany(SubscriptionRequest request) {
         Company company = null;
         if (request.getCompanyId() != null) {
@@ -129,9 +138,29 @@ public class SubscriptionMapper {
 
     private AlertRequest mapToAlertRequest(Alert alert) {
         AlertRequest alertRequest = new AlertRequest();
-        alertRequest.setEmail(alert.getEmail());
-        alertRequest.setDaysBeforeBilling(alert.getDaysBeforeBilling());
+        alertRequest.setId(alert.getId());
+        alertRequest.setEmail(alert.getContact().getEmail());
         return alertRequest;
+    }
+
+
+    /**
+     * Retrieves the contact based on ID or throws an exception if not found.
+     */
+    private Contact getContact(Long contactId) {
+        return contactRepository.findById(contactId)
+                .orElseThrow(() -> new IllegalArgumentException("Contact not found"));
+    }
+
+    /**
+     * Creates an AlertConfiguration from an AlertRequest.
+     */
+    private AlertConfiguration createAlertConfiguration(AlertRequest alertRequest) {
+        return new AlertConfiguration(
+                alertRequest.getReminderPeriod(),
+                alertRequest.getTimeUnit(),
+                alertRequest.getTriggerType()
+        );
     }
 
 }

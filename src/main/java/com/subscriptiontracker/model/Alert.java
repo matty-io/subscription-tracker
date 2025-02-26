@@ -10,13 +10,15 @@ public class Alert {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    private String email;
-
-    private int daysBeforeBilling;
+    @Embedded
+    private AlertConfiguration configuration;
 
     private boolean isNotified = false;
 
     @ManyToOne
     @JoinColumn(name = "subscription_id", nullable = false)
     private Subscription subscription;
+
+    @ManyToOne
+    private Contact contact;
 }
