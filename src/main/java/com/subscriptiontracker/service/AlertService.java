@@ -20,11 +20,11 @@ public class AlertService {
         Alert alert = alertRepository.findById(alertId)
                 .orElseThrow(() -> new IllegalArgumentException("Alert not found"));
 
-        emailService.sendSimpleEmail(List.of(alert.getEmail()), "Subscription Reminder",
+        emailService.sendSimpleEmail(List.of(alert.getContact().getEmail()), "Subscription Reminder",
                 "Your subscription for " + alert.getSubscription().getCompany().getName() + 
                 " is due on " + alert.getSubscription().getNextBillingDate());
 
-        log.info("🚀 Executing alert job for {} (alert ID: {})", alert.getEmail(), alertId);
+        log.info("🚀 Executing alert job for {} (alert ID: {})", alert.getContact().getEmail(), alertId);
 
         alert.setNotified(true);
         alertRepository.save(alert); // ✅ Mark alert as notified

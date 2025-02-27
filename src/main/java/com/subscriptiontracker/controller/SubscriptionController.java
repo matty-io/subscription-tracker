@@ -36,7 +36,7 @@ public class SubscriptionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Subscription>> getAllSubscriptions() {
+    public ResponseEntity<List<SubscriptionResponse>> getAllSubscriptions() {
         return ResponseEntity.ok(service.getAllSubscriptions());
     }
 }

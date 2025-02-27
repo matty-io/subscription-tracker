@@ -6,25 +6,16 @@ import com.subscriptiontracker.DTO.UpdateSubscriptionRequest;
 import com.subscriptiontracker.exception.ResourceNotFoundException;
 import com.subscriptiontracker.jobs.helpers.BillingJobHandler;
 import com.subscriptiontracker.mappers.SubscriptionMapper;
-import com.subscriptiontracker.model.Alert;
 import com.subscriptiontracker.model.Subscription;
 import com.subscriptiontracker.model.User;
-import com.subscriptiontracker.repository.SubscriptionFolderRepository;
 import com.subscriptiontracker.repository.SubscriptionRepository;
 import com.subscriptiontracker.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jobrunr.jobs.states.StateName;
-import org.jobrunr.scheduling.JobScheduler;
-import org.jobrunr.storage.StorageProvider;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -60,8 +51,10 @@ public class SubscriptionService {
         repository.deleteById(id);
     }
 
-    public List<Subscription> getAllSubscriptions() {
+    public List<SubscriptionResponse> getAllSubscriptions() {
         User user = SecurityUtil.getAuthenticatedUser();
-        return repository.findByUserId(user.getId());
+        List<Subscription> subscriptions = repository.findByUserId(user.getId());
+
+        return subscriptions.stream().map(subscriptionMapper::convertToSubscriptionResponse).toList();
     }
 }

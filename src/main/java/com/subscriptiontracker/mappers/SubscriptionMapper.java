@@ -139,10 +139,9 @@ public class SubscriptionMapper {
     private AlertRequest mapToAlertRequest(Alert alert) {
         AlertRequest alertRequest = new AlertRequest();
         alertRequest.setId(alert.getId());
-        alertRequest.setEmail(alert.getContact().getEmail());
+        alertRequest.setEmail(alert.getContact()!=null ? alert.getContact().getEmail() : null);
         return alertRequest;
     }
-
 
     /**
      * Retrieves the contact based on ID or throws an exception if not found.
