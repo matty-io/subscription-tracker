@@ -13,4 +13,5 @@ public class AlertRequest {
     private ChronoUnit timeUnit;
     private AlertTriggerType triggerType;
     private Long contactId;
+    private Long subscriptionId;
 }

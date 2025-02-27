@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
 @Data
 @Entity
 @NoArgsConstructor
@@ -31,10 +30,11 @@ public class User implements UserDetails {
 
     private boolean verified = false;
 
-
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<UserConnectedAccount> connectedAccounts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Contact> contacts = new ArrayList<>();
 
     public User(CreateUserRequest request) {
         this.firstName = request.getFirstName();
@@ -43,7 +43,7 @@ public class User implements UserDetails {
         this.password = request.getPassword();
     }
 
-    public User (OAuth2User oAuth2User) {
+    public User(OAuth2User oAuth2User) {
         this.email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
         if (name != null) {
@@ -87,8 +87,8 @@ public class User implements UserDetails {
         return true;
     }
 
-
-    // If you want to not allow the user to login before verifying their email, you can change this to
+    // If you want to not allow the user to login before verifying their email, you
+    // can change this to
     // return verified;
     @Override
     public boolean isEnabled() {
