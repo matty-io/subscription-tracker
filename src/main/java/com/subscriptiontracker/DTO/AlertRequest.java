@@ -8,7 +8,6 @@ import java.time.temporal.ChronoUnit;
 @Data
 public class AlertRequest {
     private Long id;
-    private String email;
     private int reminderPeriod;
     private ChronoUnit timeUnit;
     private AlertTriggerType triggerType;

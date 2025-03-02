@@ -36,8 +36,6 @@ public class SubscriptionMapper {
         subscription.setCurrency(getCurrency(request.getCurrency()));
         subscription.setFolder(getFolder(request.getFolderId()));
 
-        updateAlerts(subscription, request.getAlerts());
-
         subscription.setUser(SecurityUtil.getAuthenticatedUser());
         return subscription;
     }
@@ -60,26 +58,6 @@ public class SubscriptionMapper {
                 .orElse(null);
     }
 
-    /**
-     * Updates alerts based on the request.
-     */
-    private void updateAlerts(Subscription subscription, List<AlertRequest> alertRequests) {
-        Map<Long, Alert> existingAlerts = subscription.getAlerts().stream()
-                .collect(Collectors.toMap(Alert::getId, alert -> alert));
-
-        // Remove alerts not present in request
-        subscription.getAlerts().removeIf(alert ->
-                alertRequests.stream().noneMatch(a -> a.getId() != null && a.getId().equals(alert.getId())));
-
-        alertRequests.forEach(alertRequest -> {
-            Alert alert = existingAlerts.getOrDefault(alertRequest.getId(), new Alert());
-            alert.setSubscription(subscription);
-            alert.setContact(getContact(alertRequest.getContactId()));
-            alert.setConfiguration(createAlertConfiguration(alertRequest));
-
-            subscription.getAlerts().add(alert); // Ensures alert is added without redundant checks
-        });
-    }
     private Company getOrCreateCompany(SubscriptionRequest request) {
         Company company = null;
         if (request.getCompanyId() != null) {
@@ -111,7 +89,6 @@ public class SubscriptionMapper {
         response.setContractExpiry(subscription.getContractExpiry());
         response.setFolderId(Optional.ofNullable(subscription.getFolder()).map(SubscriptionFolder::getId).orElse(null));
         response.setUserId(subscription.getUser().getId());
-        response.setAlerts(Optional.ofNullable(subscription.getAlerts()).map(alerts -> alerts.stream().map(this::mapToAlertRequest).toList()).orElse(Collections.emptyList()));
         return response;
     }
 
@@ -139,7 +116,6 @@ public class SubscriptionMapper {
     private AlertRequest mapToAlertRequest(Alert alert) {
         AlertRequest alertRequest = new AlertRequest();
         alertRequest.setId(alert.getId());
-        alertRequest.setEmail(alert.getContact()!=null ? alert.getContact().getEmail() : null);
         return alertRequest;
     }
 

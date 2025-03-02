@@ -23,5 +23,4 @@ public abstract class SubscriptionRequest {
     private Date contractExpiry;
     private Long folderId;
     private Long userId;
-    private List<AlertRequest> alerts;
 }

@@ -28,7 +28,7 @@ public class SubscriptionService {
     public SubscriptionResponse createSubscription(CreateSubscriptionRequest request) {
         Subscription subscription = subscriptionMapper.toEntity(request);
         Subscription savedSubscription = repository.save(subscription);
-        savedSubscription.getAlerts().forEach(alert -> billingJobHandler.scheduleNextBillingJob(alert.getId()));
+       //TODO: schedule alert on  savedSubscription.getAlerts().forEach(alert -> billingJobHandler.scheduleNextBillingJob(alert.getId()));
         return subscriptionMapper.convertToSubscriptionResponse(savedSubscription);
     }
 

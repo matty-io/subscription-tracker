@@ -28,7 +28,7 @@ import java.util.Collection;
 public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-    private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
     public void login(HttpServletRequest request, HttpServletResponse response, LoginRequest body) throws AuthenticationException {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(body.getEmail(), body.getPassword());
         Authentication authentication = authenticationManager.authenticate(token);

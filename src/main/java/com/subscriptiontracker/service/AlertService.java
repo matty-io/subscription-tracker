@@ -46,19 +46,13 @@ public class AlertService {
     public Alert createAlert(AlertRequest request) {
         Alert alert = new Alert();
 
-        Subscription subscription = subscriptionRepository.findById(request.getId())
+        Subscription subscription = subscriptionRepository.findById(request.getSubscriptionId())
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found with ID: " + request.getId()));
 
         Contact contact = null;
         if (request.getContactId() != null) {
             contact = contactRepository.findById(request.getContactId())
                     .orElseThrow(() -> new ResourceNotFoundException("Contact not found with ID: " + request.getContactId()));
-        } else if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            contact = new Contact();
-            contact.setEmail(request.getEmail());
-            contact = contactRepository.save(contact);
-        } else {
-            throw new IllegalArgumentException("Either contact ID or email must be provided");
         }
 
         AlertConfiguration configuration = new AlertConfiguration(
@@ -89,14 +83,6 @@ public class AlertService {
             contact = contactRepository.findById(request.getContactId())
                     .orElseThrow(() -> new ResourceNotFoundException("Contact not found with ID: " + request.getContactId()));
             alert.setContact(contact);
-        } else if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            // If email changed, update or create new contact
-            if (alert.getContact() == null || !alert.getContact().getEmail().equals(request.getEmail())) {
-                contact = new Contact();
-                contact.setEmail(request.getEmail());
-                contact = contactRepository.save(contact);
-                alert.setContact(contact);
-            }
         }
 
         // Update the alert configuration
