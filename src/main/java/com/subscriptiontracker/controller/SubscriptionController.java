@@ -7,6 +7,7 @@ import com.subscriptiontracker.model.Subscription;
 import com.subscriptiontracker.service.SubscriptionFolderService;
 import com.subscriptiontracker.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,11 @@ public class SubscriptionController {
     public ResponseEntity<Void> deleteSubscription(@PathVariable Long id) {
         service.deleteSubscription(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SubscriptionResponse> getSubscription(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getSubscription(id));
     }
 
     @GetMapping

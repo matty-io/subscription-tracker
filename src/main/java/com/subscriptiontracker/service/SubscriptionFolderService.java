@@ -9,6 +9,7 @@ import com.subscriptiontracker.repository.SubscriptionFolderRepository;
 import com.subscriptiontracker.repository.SubscriptionRepository;
 import com.subscriptiontracker.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,6 +36,12 @@ public class SubscriptionFolderService {
 
     public List<SubscriptionFolderResponse> getAllSubscriptionFolders() {
         User user = SecurityUtil.getAuthenticatedUser();
+        return getAllSubscriptionFolders(user);
+    }
+
+    @Cacheable(value = "subscription_folders", key = "#user.id")
+    public List<SubscriptionFolderResponse> getAllSubscriptionFolders(User user) {
+
         List<SubscriptionFolder> folders = repository.findAllByUserId(user.getId()).orElse(new ArrayList<>());
 
         List<SubscriptionFolderResponse> folderDTOs = folders.stream().map(subscriptionMapper::convertToFolderResponse).collect(Collectors.toList());

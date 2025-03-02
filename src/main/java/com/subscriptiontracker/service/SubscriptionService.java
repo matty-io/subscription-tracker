@@ -7,11 +7,13 @@ import com.subscriptiontracker.exception.ResourceNotFoundException;
 import com.subscriptiontracker.jobs.helpers.BillingJobHandler;
 import com.subscriptiontracker.mappers.SubscriptionMapper;
 import com.subscriptiontracker.model.Subscription;
+import com.subscriptiontracker.model.SubscriptionFolder;
 import com.subscriptiontracker.model.User;
 import com.subscriptiontracker.repository.SubscriptionRepository;
 import com.subscriptiontracker.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,11 @@ public class SubscriptionService {
     private final SubscriptionRepository repository;
     private final SubscriptionMapper subscriptionMapper;
     private final BillingJobHandler billingJobHandler;
+
+    @Cacheable(value = "subscription", key="#id")
+    public SubscriptionResponse getSubscription(Long id) {
+        return repository.findById(id).map(subscriptionMapper::convertToSubscriptionResponse).orElse(new SubscriptionResponse());
+    }
 
     public SubscriptionResponse createSubscription(CreateSubscriptionRequest request) {
         Subscription subscription = subscriptionMapper.toEntity(request);
@@ -51,6 +58,7 @@ public class SubscriptionService {
         repository.deleteById(id);
     }
 
+    @Cacheable(value = "subscriptions", key = "#user.id")
     public List<SubscriptionResponse> getAllSubscriptions() {
         User user = SecurityUtil.getAuthenticatedUser();
         List<Subscription> subscriptions = repository.findByUserId(user.getId());

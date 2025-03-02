@@ -2,10 +2,7 @@ package com.subscriptiontracker.DTO;
 
 import com.subscriptiontracker.enums.BillingCycle;
 import com.subscriptiontracker.enums.SubscriptionType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
